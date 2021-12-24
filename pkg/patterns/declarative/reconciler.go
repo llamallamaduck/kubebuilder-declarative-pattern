@@ -234,6 +234,11 @@ func (r *Reconciler) reconcileExists(ctx context.Context, name types.NamespacedN
 		}
 
 		extraArgs = append(extraArgs, "--prune", "--selector", strings.Join(labels, ","))
+		if r.options.pruneAllowList != nil {
+			for _, gvk :=  range r.options.pruneAllowList {
+				extraArgs = append(extraArgs, "--prune-whitelist", gvk)
+			}
+		}
 	}
 
 	ns := ""

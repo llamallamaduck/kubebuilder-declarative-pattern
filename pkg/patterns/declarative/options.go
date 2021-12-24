@@ -43,6 +43,7 @@ type reconcilerParams struct {
 	manifestController    ManifestController
 
 	prune             bool
+	pruneAllowList    []string
 	preserveNamespace bool
 	kustomize         bool
 	validate          bool
@@ -108,6 +109,15 @@ func WithManifestController(mc ManifestController) reconcilerOption {
 func WithApplyPrune() reconcilerOption {
 	return func(p reconcilerParams) reconcilerParams {
 		p.prune = true
+		return p
+	}
+}
+
+// WithPruneAllowlist specifies resources to be passed to kubctl with the --prune-whitelist flag
+// Note that WithApplyPrune() should be enabled for this to have effect.
+func WithPruneAllowlist(pruneAllowList []string) reconcilerOption {
+	return func(p reconcilerParams) reconcilerParams {
+		p.pruneAllowList = pruneAllowList
 		return p
 	}
 }
