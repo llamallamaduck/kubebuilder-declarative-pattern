@@ -74,7 +74,9 @@ type DeclarativeObject interface {
 }
 
 // For mocking
-var kubectl = applier.NewDirectApplier()
+//var kubectl = applier.NewDirectApplier()
+// TODO NewDirectApplier does not set prune flags (and it's nontrivial to set it)
+var kubectl = applier.NewExec()
 
 func (r *Reconciler) Init(mgr manager.Manager, prototype DeclarativeObject, opts ...reconcilerOption) error {
 	r.prototype = prototype
@@ -234,6 +236,11 @@ func (r *Reconciler) reconcileExists(ctx context.Context, name types.NamespacedN
 		}
 
 		extraArgs = append(extraArgs, "--prune", "--selector", strings.Join(labels, ","))
+		if r.options.pruneAllowList != nil {
+			for _, gvk :=  range r.options.pruneAllowList {
+				extraArgs = append(extraArgs, "--prune-whitelist", gvk)
+			}
+		}
 	}
 
 	ns := ""
