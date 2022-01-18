@@ -295,6 +295,17 @@ func (r *Reconciler) BuildDeploymentObjectsWithFs(ctx context.Context, name type
 		log.Error(err, "error loading raw manifest")
 		return nil, err
 	}
+
+	// 1B. raw expansions
+	// expand
+	for _, expansion := range r.options.rawManifestExpansions {
+		expanded, err := expansion(ctx, instance, manifestFiles)
+		if err != nil {
+			return nil, err
+		}
+		manifestFiles = expanded
+	}
+
 	manifestObjects := &manifest.Objects{}
 	// 2. Perform raw string operations
 	for manifestPath, manifestStr := range manifestFiles {
