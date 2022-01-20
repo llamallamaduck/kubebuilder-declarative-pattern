@@ -74,12 +74,11 @@ type DeclarativeObject interface {
 }
 
 // For mocking
-//var kubectl = applier.NewDirectApplier()
-// TODO NewDirectApplier does not set prune flags (and it's nontrivial to set it)
-var kubectl = applier.NewExec()
+var kubectl = applier.NewDirectApplier()
 
 func (r *Reconciler) Init(mgr manager.Manager, prototype DeclarativeObject, opts ...reconcilerOption) error {
 	r.prototype = prototype
+
 	r.kubectl = kubectl
 
 	// TODO: Can we derive the name from prototype?
@@ -105,6 +104,13 @@ func (r *Reconciler) Init(mgr manager.Manager, prototype DeclarativeObject, opts
 
 	if err := r.validateOptions(); err != nil {
 		return err
+	}
+
+	// TODO remove when fixed upstream
+	// TODO NewDirectApplier does not set prune flags (and it's nontrivial to set it)
+	if r.options.prune {
+		r.kubectl = applier.NewExec()
+
 	}
 
 	if r.CollectMetrics() {
